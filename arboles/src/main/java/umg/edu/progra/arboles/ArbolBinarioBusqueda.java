@@ -294,6 +294,92 @@ public class ArbolBinarioBusqueda {
     }
 
     /**
+     * Devuelve el k-esimo valor mas pequeno del arbol.
+     * Usa el recorrido inOrden, que en un BST visita los valores ordenados.
+     */
+    public int kEsimoMenor(int k) {
+        if (k < 1 || k > tamanio) {
+            throw new IllegalArgumentException("k debe estar entre 1 y el tamanio del arbol");
+        }
+
+        EstadoK estado = new EstadoK(k);
+        kEsimoMenorRecursivo(raiz, estado);
+        return estado.valor;
+    }
+
+    private void kEsimoMenorRecursivo(Nodo nodo, EstadoK estado) {
+        if (nodo == null || estado.encontrado) {
+            return;
+        }
+
+        kEsimoMenorRecursivo(nodo.izquierdo, estado);
+        if (estado.encontrado) {
+            return;
+        }
+
+        estado.contador++;
+        if (estado.contador == estado.k) {
+            estado.valor = nodo.dato;
+            estado.encontrado = true;
+            return;
+        }
+
+        kEsimoMenorRecursivo(nodo.derecho, estado);
+    }
+
+    /**
+     * Imprime en orden los valores que estan dentro del rango [min, max].
+     */
+    public void imprimirRangoOrdenado(int min, int max) {
+        imprimirRangoOrdenadoRecursivo(raiz, min, max);
+        System.out.println();
+    }
+
+    private void imprimirRangoOrdenadoRecursivo(Nodo nodo, int min, int max) {
+        if (nodo == null) {
+            return;
+        }
+
+        if (nodo.dato > min) {
+            imprimirRangoOrdenadoRecursivo(nodo.izquierdo, min, max);
+        }
+
+        if (nodo.dato >= min && nodo.dato <= max) {
+            System.out.print(nodo.dato + " ");
+        }
+
+        if (nodo.dato < max) {
+            imprimirRangoOrdenadoRecursivo(nodo.derecho, min, max);
+        }
+    }
+
+    /**
+     * Devuelve el diametro del arbol medido en aristas.
+     */
+    public int diametro() {
+        return calcularDiametro(raiz).diametro;
+    }
+
+    private ResultadoDiametro calcularDiametro(Nodo nodo) {
+        if (nodo == null) {
+            return new ResultadoDiametro(-1, 0);
+        }
+
+        ResultadoDiametro izquierda = calcularDiametro(nodo.izquierdo);
+        ResultadoDiametro derecha = calcularDiametro(nodo.derecho);
+
+        int altura = 1 + (izquierda.altura > derecha.altura ? izquierda.altura : derecha.altura);
+        int diametroPorRaiz = izquierda.altura + derecha.altura + 2;
+        int mayorDiametro = izquierda.diametro > derecha.diametro ? izquierda.diametro : derecha.diametro;
+
+        if (diametroPorRaiz > mayorDiametro) {
+            mayorDiametro = diametroPorRaiz;
+        }
+
+        return new ResultadoDiametro(altura, mayorDiametro);
+    }
+
+    /**
      * Cuenta cuantos nodos hoja (sin hijos) tiene el arbol.
      */
     public int contarHojas() {
@@ -458,6 +544,30 @@ public class ArbolBinarioBusqueda {
                 fondo = null;
             }
             return valor;
+        }
+    }
+
+    private static class EstadoK {
+        int k;
+        int contador;
+        int valor;
+        boolean encontrado;
+
+        EstadoK(int k) {
+            this.k = k;
+            this.contador = 0;
+            this.valor = 0;
+            this.encontrado = false;
+        }
+    }
+
+    private static class ResultadoDiametro {
+        int altura;
+        int diametro;
+
+        ResultadoDiametro(int altura, int diametro) {
+            this.altura = altura;
+            this.diametro = diametro;
         }
     }
 }
